@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" version="3.0">
+  <display-name>MultiStreamTest</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+  
+  
+  <!--
+  Simple servlet for admin panel. +Jump-starts monitor
+    GET: 
+        return current CPU load border
+    POST:
+        ?action=
+                stop  :  stop_monitor   
+   -->
+  <servlet>
+    <servlet-name>Admin</servlet-name>
+    <servlet-class>e_kolotilko.multi_stream.test.view.Admin</servlet-class>
+    <load-on-startup>0</load-on-startup>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>Admin</servlet-name>
+    <url-pattern>/api/admin</url-pattern>
+  </servlet-mapping>
+  
+  
+  <servlet>
+    <servlet-name>stream</servlet-name>
+    <servlet-class>e_kolotilko.multi_stream.test.view.CpuLoadStreamer</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>stream</servlet-name>
+    <url-pattern>/api/stream</url-pattern>
+  </servlet-mapping>
+  
+  <servlet>
+    <servlet-name>ContinuesRequest</servlet-name>
+    <servlet-class>e_kolotilko.multi_stream.test.view.ContinuesRequest</servlet-class>
+  </servlet>
+  <servlet-mapping>
+    <servlet-name>ContinuesRequest</servlet-name>
+    <url-pattern>/api/continuesRequest</url-pattern>
+  </servlet-mapping>
+  
+</web-app>

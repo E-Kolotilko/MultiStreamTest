@@ -16,14 +16,31 @@ function sendAction(){
 			elem.innerText  = this.response;
 	    }
 	}
+	var toSend;
 	var input = document.getElementById('actionId');
-	if (input.value) {
-		xhr.send("action="+input.value);
+	if (input.value){
+		toSend = "action="+input.value;
+	}
+	var argumentKey=document.getElementById('argumentKeyId');
+	var argumentValue=document.getElementById('argumentValueId');
+	if (argumentKey.value && argumentValue.value){
+		var argumentString = argumentKey.value+'='+argumentValue.value;
+		if (toSend){
+			toSend = toSend+'&'+argumentString; 
+		}
+		else {
+			toSend = argumentString;
+		}
+	}
+	
+	if (toSend) {
+		xhr.send(encodeURI(toSend));
 	}
 	else {
 		xhr.send();
 	}
 }
+
 function ping(){
 	var xhr = new XMLHttpRequest();
 	xhr.open('GET', 'api/admin', true);
@@ -35,6 +52,8 @@ function ping(){
 }
 </script>
 action: <input type="text" id="actionId"></br>
+argument key: <input type="text" id="argumentKeyId" placeholder="loadBorderValue"></br>
+argument value: <input type="text" id="argumentValueId"></br>
 <button onclick="sendAction()">send action</button></br>
 <button onclick="ping()">ping</button></br>
 Result:</br>

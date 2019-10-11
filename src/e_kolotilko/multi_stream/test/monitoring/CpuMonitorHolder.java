@@ -32,7 +32,7 @@ public class CpuMonitorHolder {
         return monitor.getBorderLoad();
     }
     
-    public boolean setBorderLoad(double newBorder) {
+    static public boolean setBorderLoad(double newBorder) {
         return monitor.setBorderLoad(newBorder);
     }
     
@@ -58,9 +58,12 @@ public class CpuMonitorHolder {
 
 
 class CpuMonitor implements Runnable {
-    static final long TRIGGER_TIME_MIN=50;
-    static final long TRIGGER_TIME_DEFAULT = 1000;
-    static final double BORDER_LOAD_DEFAULT = 80;
+    static public final long TRIGGER_TIME_MIN=50;
+    static public final long TRIGGER_TIME_DEFAULT = 1000;
+
+    static public final double BORDER_LOAD_MIN=0;
+    static public final double BORDER_LOAD_MAX=100;
+    static public final double BORDER_LOAD_DEFAULT = 80;
     
     public CpuMonitor() {
         this(TRIGGER_TIME_DEFAULT,BORDER_LOAD_DEFAULT);
@@ -73,11 +76,14 @@ class CpuMonitor implements Runnable {
     public CpuMonitor(long triggerTime, double borderLoad) {
         this.triggerTime = (triggerTime<TRIGGER_TIME_MIN) ? TRIGGER_TIME_MIN : triggerTime;
         
-        if ((borderLoad>=0) && (borderLoad<=100)) {
+        if (borderLoad<BORDER_LOAD_MIN) {
+            this.borderLoad = borderLoad;
+        }
+        else if (borderLoad>BORDER_LOAD_MAX) {
             this.borderLoad = borderLoad;
         }
         else {
-            this.borderLoad = BORDER_LOAD_DEFAULT;
+            this.borderLoad = borderLoad;
         }
     }
     
@@ -109,7 +115,7 @@ class CpuMonitor implements Runnable {
     /**
      * CPU load border. If CPU load if more or equal to this, event will be triggered 
      */
-    protected double borderLoad = BORDER_LOAD_DEFAULT;
+    protected volatile double borderLoad;
     public double getBorderLoad() {
         return borderLoad;
     }
@@ -120,7 +126,7 @@ class CpuMonitor implements Runnable {
      * @return true if assigned new value, else false
      */
     public boolean setBorderLoad(double newBorder) {
-        if ((newBorder>=0) && (newBorder<=100)) {
+        if ((newBorder>=BORDER_LOAD_MIN) && (newBorder<=BORDER_LOAD_MAX)) {
             borderLoad = newBorder;
             return true;
         }
@@ -144,7 +150,7 @@ class CpuMonitor implements Runnable {
     protected List<IBorderEventGetter> subsToBorderOverflow = new ArrayList<IBorderEventGetter>();
     public void subToBorderOverflowEvent(IBorderEventGetter listener) {
         if (listener != null) {
-            subsToBorderOverflow.add(listener);   
+            subsToBorderOverflow.add(listener); 
         }
     }
     public void unsubFromBorderOverflowEvent(IBorderEventGetter listener) {
@@ -183,7 +189,9 @@ class CpuMonitor implements Runnable {
             
             loadPercent = tempPercent;
             notifySubsToLoad(loadPercent);
-            notifySubToBorderOverflowEvent(loadPercent);
+            if (loadPercent>=borderLoad) {
+                notifySubToBorderOverflowEvent(loadPercent);
+            }
             
             try {
              Thread.sleep(triggerTime);

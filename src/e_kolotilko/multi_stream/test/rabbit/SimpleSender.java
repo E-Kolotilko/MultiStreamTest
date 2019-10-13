@@ -44,7 +44,6 @@ public class SimpleSender implements IBorderEventGetter//, Runnable
                     Channel channel = connection.createChannel()) {
                 channel.exchangeDeclare(exchangeName, "fanout");
                 channel.basicPublish(exchangeName, "", null, message.getBytes("UTF-8"));
-                System.out.println(" [x] Sent '" + message + "'");//TODO : remove this
                }
             catch (Exception e) {
                 aLogger.error(e);

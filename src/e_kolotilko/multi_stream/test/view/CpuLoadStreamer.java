@@ -37,6 +37,8 @@ public class CpuLoadStreamer extends HttpServlet implements ICpuLoadGetter {
           "Content-Type: image/jpeg" + NL 
           + "Content-Length: ";
     
+    public static final long MAX_WAIT_TIME = 10000;
+    static Object globalSync = new Object();
     
     double loadPercent;
     BufferedImage image = new BufferedImage(PIC_WIDTH, PIC_HIGHT, BufferedImage.TYPE_INT_RGB);
@@ -46,6 +48,9 @@ public class CpuLoadStreamer extends HttpServlet implements ICpuLoadGetter {
     public void getCpuLoad(double loadPercent) {
         this.loadPercent = loadPercent;
         setImageBytes(loadPercent);
+        synchronized (globalSync) {
+            globalSync.notifyAll();
+        }
     }
     
     @Override
@@ -85,22 +90,23 @@ public class CpuLoadStreamer extends HttpServlet implements ICpuLoadGetter {
         response.setHeader("Cache-Control", 
                 "no-store, no-cache, must-revalidate, pre-check=0, post-check=0, max-age=0");
         response.setContentType("multipart/x-mixed-replace;boundary="+BOUNDARY);
-        try (OutputStream out = response.getOutputStream()) {   
-            while (true) { //work until client disconnects    
+        try (OutputStream out = response.getOutputStream()) {
+            while (true) { //work until client disconnects   
+                //writing even if nothing changed to test if client is still online
                 if (imageBytes != null) {
                     out.write( (HEAD + imageBytes.length + NL_DOUBLE).getBytes(StandardCharsets.UTF_8) );
                     out.write(imageBytes);
                     out.flush();
                 }     
-                ///////////////////////////////////////////////////////////////////////////////
-                Thread.sleep(2000);
-                //////////////////////////////////////////////////////////////////////////////                
+                synchronized (globalSync) {
+                    globalSync.wait(MAX_WAIT_TIME);
+                }
             }
             
         }
         catch (IOException e) {
             //Nothing to do. We expect client to break connection
-            System.out.println("Thread is stopping as expected");
+            System.out.println("Thread is stopping as expected"); //TODO : replace with logger
         }
         catch (Exception e) {
             //Unexpected. Logging

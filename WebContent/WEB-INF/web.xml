@@ -34,6 +34,7 @@
     <url-pattern>/api/stream</url-pattern>
   </servlet-mapping>
   
+  <!-- 
   <servlet>
     <servlet-name>ContinuesRequest</servlet-name>
     <servlet-class>e_kolotilko.multi_stream.test.view.ContinuesRequest</servlet-class>
@@ -42,7 +43,9 @@
     <servlet-name>ContinuesRequest</servlet-name>
     <url-pattern>/api/continuesRequest</url-pattern>
   </servlet-mapping>
+   -->
   
+  <!-- 
   <servlet>
     <servlet-name>BorderCrossWeirdTest</servlet-name>
     <servlet-class>e_kolotilko.multi_stream.test.view.BorderCrossWeirdTest</servlet-class>
@@ -51,5 +54,6 @@
     <servlet-name>BorderCrossWeirdTest</servlet-name>
     <url-pattern>/api/borderWeird</url-pattern>
   </servlet-mapping>
+   -->
   
 </web-app>

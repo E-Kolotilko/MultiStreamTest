@@ -51,7 +51,7 @@ public class Admin extends HttpServlet {
 		      CpuMonitorHolder.stopWorking(); 
 			  message = "Monitor will be stopped after " + CpuMonitorHolder.getTriggerTime();
 		  } break;
-		  case "setLoadBorder":{
+		  case "setBorderValue":{
 		      String borderValueString = params.get("loadBorderValue");
 		      if (borderValueString == null) {
 		          message = "Border value not found in param string";

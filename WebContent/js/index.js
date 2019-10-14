@@ -24,9 +24,7 @@ function appendDiv(response){
 
 function main(){
 	var ws = new WebSocket('ws://192.168.0.102:15674/ws');
-	ws.onmessage=function(x){
-		console.log('ws got it!');		
-	}
+	
 	
 	var client = Stomp.over(ws);
 	var on_connect = function() {

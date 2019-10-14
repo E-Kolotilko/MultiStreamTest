@@ -24,32 +24,65 @@ public class CpuMonitorHolder {
         monitor.stopWorking();
     }
     
+    /**
+     * Get last measured value of CPU load
+     * @return CPU load in percent, not rounded
+     */
     static public double getLoadPercent() {
         return monitor.getLoadPercent();
     }
     
+    /**
+     * get CPU load border value. If CPU load if more than or equal to this, event will be triggered
+     * @return CPU load border value
+     */
     static public double getBorderLoad() {
         return monitor.getBorderLoad();
     }
     
+    /**
+     * set CPU load border value. If CPU load if more than or equal to this, event will be triggered
+     * @param newBorder new trigger value in % between 0 and 100
+     * @return true if assigned new value, else false
+     */
     static public boolean setBorderLoad(double newBorder) {
         return monitor.setBorderLoad(newBorder);
     }
     
+    /**
+     * Get how often measurement will occur
+     * @return minimum amount of time in milliseconds between 2 measurements
+     */
     static public long getTriggerTime() {
         return monitor.getTriggerTime();
     }
     
+    /**
+     * Subscribe to CPU load updates
+     * @param listener 
+     */
     static public void subToLoadInfoUpdate(ICpuLoadGetter listener) {
         monitor.subToLoadInfoUpdate(listener);
     }
+    /**
+     * Unsubscribe from CPU load updates
+     * @param listener
+     */
     static public void unsubFromLoadInfoUpdate(ICpuLoadGetter listener) {
         monitor.unsubFromLoadInfoUpdate(listener);
     }
     
+    /**
+     * Subscribe to being notified about border overflow events
+     * @param listener
+     */
     static public void subToBorderOverflowEvent(IBorderEventGetter listener) {
         monitor.subToBorderOverflowEvent(listener);
     }
+    /**
+     * Unsubscribe from being notified about border overflow events
+     * @param listener
+     */
     static public void unsubFromBorderOverflowEvent(IBorderEventGetter listener) {
         monitor.unsubFromBorderOverflowEvent(listener);
     }
@@ -77,10 +110,10 @@ class CpuMonitor implements Runnable {
         this.triggerTime = (triggerTime<TRIGGER_TIME_MIN) ? TRIGGER_TIME_MIN : triggerTime;
         
         if (borderLoad<BORDER_LOAD_MIN) {
-            this.borderLoad = borderLoad;
+            this.borderLoad = BORDER_LOAD_MIN;
         }
         else if (borderLoad>BORDER_LOAD_MAX) {
-            this.borderLoad = borderLoad;
+            this.borderLoad = BORDER_LOAD_MAX;
         }
         else {
             this.borderLoad = borderLoad;
@@ -161,6 +194,7 @@ class CpuMonitor implements Runnable {
     
     protected void notifySubToBorderOverflowEvent(double cpuLoad) {
         if (subsToBorderOverflow.isEmpty()) return;
+        
         long now = System.currentTimeMillis();
         
         for (IBorderEventGetter sub : subsToBorderOverflow) {

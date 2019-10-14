@@ -9,10 +9,11 @@
   <!--
   Simple servlet for admin panel. +Jump-starts monitor
     GET: 
-        return current CPU load border
+        return current CPU load border value
     POST:
         ?action=
                 stop  :  stop_monitor   
+                setBorderValue&loadBorderValue=...  :  set_new_border
    -->
   <servlet>
     <servlet-name>Admin</servlet-name>
@@ -34,16 +35,6 @@
     <url-pattern>/api/stream</url-pattern>
   </servlet-mapping>
   
-  <!-- 
-  <servlet>
-    <servlet-name>ContinuesRequest</servlet-name>
-    <servlet-class>e_kolotilko.multi_stream.test.view.ContinuesRequest</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>ContinuesRequest</servlet-name>
-    <url-pattern>/api/continuesRequest</url-pattern>
-  </servlet-mapping>
-   -->
   
   <!-- 
   <servlet>

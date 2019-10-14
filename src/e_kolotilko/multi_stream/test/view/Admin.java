@@ -15,10 +15,13 @@ import e_kolotilko.multi_stream.test.rabbit.SimpleSenderHolder;
 import e_kolotilko.multi_stream.test.routine.SimpleWriter;
 import e_kolotilko.multi_stream.test.routine.Utility;
 
+/**
+ * This servlet is used for Simple administration actions (get border, set border, stop monitor)
+ *
+ */
 @SuppressWarnings("serial")
 public class Admin extends HttpServlet {
-    static Logger aLogger = LogManager.getLogger();
-    
+    static Logger aLogger = LogManager.getLogger();    
     SimpleWriter writer = new SimpleWriter();
     
     @Override
@@ -27,15 +30,19 @@ public class Admin extends HttpServlet {
         aLogger.info("Poking rabbit... Has subbed:"+SimpleSenderHolder.hasSubbed());
     }
 	
+    /**
+     * Returns text message with CPU load border value at the moment
+     */
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
 		writer.writeText(response, "Border now:" + CpuMonitorHolder.getBorderLoad());
 	}
 
+	/**
+	 * Reads query parameters, parse and executes if found known commands
+	 */
 	@Override
-	public void doPost(HttpServletRequest request, HttpServletResponse response) {				
-		//String action = request.getParameter("action");
-		
+	public void doPost(HttpServletRequest request, HttpServletResponse response) {		
 		String querryString = Utility.getBody(request);
 		Map<String,String> params = Utility.processSimpleRequest(querryString);
 		String action = params.get("action");
@@ -52,6 +59,7 @@ public class Admin extends HttpServlet {
 			  message = "Monitor will be stopped after " + CpuMonitorHolder.getTriggerTime();
 		  } break;
 		  case "setBorderValue":{
+		      //if action setBorderValue is present, then parameter loadBorderValue must be present 
 		      String borderValueString = params.get("loadBorderValue");
 		      if (borderValueString == null) {
 		          message = "Border value not found in param string";

@@ -5,7 +5,6 @@ function main(){
 	request.multipart = true;
 	request.open('GET', './api/borderWeird', true);
 	request.onreadystatechange = function () {
-		loggerDiv.inne
 		loggerDiv.innerText = request.responseText;
 	};
 	request.send();

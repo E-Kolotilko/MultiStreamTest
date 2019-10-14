@@ -19,6 +19,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * This servlet is supposed to stream MJPEG to receivers.
+ * 
+ */
 @SuppressWarnings("serial")
 public class CpuLoadStreamer extends HttpServlet implements ICpuLoadGetter {
     static SimpleWriter writer = new SimpleWriter();
@@ -37,31 +41,35 @@ public class CpuLoadStreamer extends HttpServlet implements ICpuLoadGetter {
           "Content-Type: image/jpeg" + NL 
           + "Content-Length: ";
     
+    //Max wait time for update on CPU load. Used to be sure that client is still connected 
     public static final long MAX_WAIT_TIME = 10000;
+    //Simple sync object to make all clients receive update almost at the same time
     static Object globalSync = new Object();
     
     double loadPercent;
+    //temporary image object. Used to get bytes for sending
     BufferedImage image = new BufferedImage(PIC_WIDTH, PIC_HIGHT, BufferedImage.TYPE_INT_RGB);
     Graphics tempGraph;
+    //byte array representing an image
     byte[] imageBytes;
+    
+    /**
+     * Callback used by monitor for providing an update on CPU load
+     */
     @Override
     public void getCpuLoad(double loadPercent) {
         this.loadPercent = loadPercent;
+        //TODO : move out to another thread to let monitor go fast
         setImageBytes(loadPercent);
         synchronized (globalSync) {
             globalSync.notifyAll();
         }
     }
-    
-    @Override
-    public void init() throws ServletException {
-        super.init();        
-        tempGraph = image.getGraphics();
-        tempGraph.setFont(new Font(Font.SANS_SERIF,Font.PLAIN,FONT_SIZE));
-        setImageBytes(this.loadPercent);
-        CpuMonitorHolder.subToLoadInfoUpdate(this);
-    }
-    
+
+    /**
+     * Draw an image and set up new image array 
+     * @param loadPercent
+     */
     void setImageBytes(double loadPercent) {
         //
         //loadPercent = Math.round(loadPercent*100.0)/100.0;
@@ -77,6 +85,15 @@ public class CpuLoadStreamer extends HttpServlet implements ICpuLoadGetter {
     }
     
     @Override
+    public void init() throws ServletException {
+        super.init();        
+        tempGraph = image.getGraphics();
+        tempGraph.setFont(new Font(Font.SANS_SERIF,Font.PLAIN,FONT_SIZE));
+        setImageBytes(this.loadPercent);
+        CpuMonitorHolder.subToLoadInfoUpdate(this);
+    }
+    
+    @Override
     public void destroy() {
         super.destroy();
         CpuMonitorHolder.unsubFromLoadInfoUpdate(this);
@@ -85,6 +102,9 @@ public class CpuLoadStreamer extends HttpServlet implements ICpuLoadGetter {
         }
     }
     
+    /**
+     * Start a stream
+     */
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) {
         response.setHeader("Cache-Control", 

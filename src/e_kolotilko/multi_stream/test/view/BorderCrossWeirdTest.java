@@ -16,6 +16,17 @@ import com.rabbitmq.client.GetResponse;
 
 import e_kolotilko.multi_stream.test.rabbit.SimpleSenderHolder;
 
+/**
+ * This servlet was a test of 
+ * 
+ * 1. using "multipart/x-mixed-replace" mime type with text to achieve stream-like behavior
+ * Result: server can send strings converted to bytes and client can accumulate it rather naturally 
+ * using XMLHttpRequest
+ * 
+ * 2. Receiving messages from rabbitmq (before moving on to front-end solution   
+ *
+ */
+@SuppressWarnings("serial")
 public class BorderCrossWeirdTest extends HttpServlet {
     static final String BOUNDARY = "myboundary";
     static final String NL = "\r\n";
@@ -72,6 +83,7 @@ public class BorderCrossWeirdTest extends HttpServlet {
             //Nothing to do. We expect client to break connection
             //System.out.println("Thread is stopping as expected");
             //BUT! If misconfigured, rabbit can deny actions with same IOException
+            e.printStackTrace();
         }
         catch (Exception e) {
             //Unexpected. Logging
